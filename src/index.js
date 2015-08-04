@@ -1,3 +1,6 @@
+/*
+* http://fis.baidu.com
+ */
 'use strict';
 
 var path = require('path'),
@@ -6,10 +9,10 @@ var path = require('path'),
 
 module.exports = function (ret, conf, settings) {
 
-    var projectPath = fis.project.getProjectPath();
+    var projectPath = fis.project.getProjectPath(),
+        iconMaps = icon.init(settings);
 
-
-
+    // 处理文件依赖
     function calFileDepsFromId(id, opts){
         var pageRes = {};
         var queue = [id], deps = {}, asyncDeps = [],
@@ -73,7 +76,6 @@ module.exports = function (ret, conf, settings) {
         return {deps: deps, cssDeps: cssDeps, asyncDeps: asyncDeps};
     }
 
-    var iconMaps = icon.init(settings);
     // html 所有 tpl 依赖项分析
     fis.util.map(ret.src, function (subpath, file) {
 
