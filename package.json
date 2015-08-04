@@ -1,0 +1,26 @@
+{
+  "name": "fis-postpackager-iconfont",
+  "version": "0.0.3",
+  "description": "iconfont",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "fis",
+    "widget",
+    "inline"
+  ],
+  "author": {
+    "name": "helondeng",
+    "email": "dhlwust@163.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/haledeng/fis-postpackager-widgetinhtml"
+  },
+  "readmeFilename": "README.md",
+  "license": "BSD",
+  "dependencies": {
+  }
+}
