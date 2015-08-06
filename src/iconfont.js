@@ -11,10 +11,25 @@ var fs = require('fs'),
 var svgCnt = 0;
 
 
+// 十进制 转 16进制
+function decimal2Hex(n){
+    var hex = n.toString(16);
+    hex = '000'.substr(0, 3 - hex.length) + hex;
+    return hex;
+}
+
+// 生成 icon 对应的 content
+function generateIconContent(n){
+    return '&#xf' + decimal2Hex(n);
+}
+
+
 /*
 * generate font files
 */
-function genarateFonts(opt){
+exports.genarateFonts = function (opt) {
+    var self = this;
+
     var svgPath = opt.svgPath,
         files = fs.readdirSync(svgPath),
         output = opt.output,
@@ -46,49 +61,34 @@ function genarateFonts(opt){
         path: output
     });
 
-    return {
+    self.maps = {
         iconContentMaps: iconContentMaps, // icon 名和 content 的 map
         iconContents: iconContents, // content 
         fontContent: content, // 字体文件{ttf: xxx, woff: xxx}
         iconNames: iconNames // icon名字，和svg 名字，类名有对应关系
     };
-}
-
-
-// 十进制 转 16进制
-function decimal2Hex(n){
-    var hex = n.toString(16);
-    hex = '000'.substr(0, 3 - hex.length) + hex;
-    return hex;
-}
-
-// 生成 icon 对应的 content
-function generateIconContent(n){
-    return '&#xf' + decimal2Hex(n);
-}
+    return self.maps; 
+};
 
 // 生成 icon 样式
 // ttf 文件引入 cdn 问题
-function generateCss(iconNames, maps){
+exports.generateCss = function (iconNames) {
+    var self = this,
+        maps = self.maps.iconContentMaps || {};
+
     var content = [],
         iconContent;
     // 字体的引用和每个css的引入路径有关系
     content.push('@font-face { ');
     content.push('font-family: "mfont";');
     content.push('src: url("{{$path}}") format("truetype");}');
-    content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;}');
+    content.push('.icon-font{font-family:"iconfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;font-size: 16px;position: relative;vertical-align:-2px;-webkit-font-smoothing: antialiased;}');
     iconNames.forEach(function(iconName){
-        iconContent = maps[iconName];
-        if(iconContent){
+        iconContent = maps[iconName] || '';
+        if (typeof iconContent !== 'undefined') {
             iconContent = iconContent.replace('&#xf', '\\f');
             content.push('.i-' + iconName + ':after{content: "' + iconContent + '";}');
         }
     });
     return content.join('\r\n');
-}
-
-
-module.exports = {
-    init: genarateFonts,
-    generateCss: generateCss
 };
