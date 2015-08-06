@@ -27,7 +27,7 @@ fis-conf.js 配置
 'iconfont': {
     libs: ['zepto', 'common', 'qqapi'],
     ignores: ['tvp'],
-    classPrefix: 'i-',
+    classPrefix: 'i-', // 配置iconfont类名前缀
     svgPath: '../svg',
     output: 'fonts/iconfont',
     ttfCdn: 'http://' + projConf.cdnRoot.img + '/' + projConf.subPath

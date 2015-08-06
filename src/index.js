@@ -11,9 +11,8 @@ module.exports = function (ret, conf, settings) {
 
     var projectPath = fis.project.getProjectPath(),
         iconPrefix = settings.classPrefix,
-        iconReg = new RegExp('[\s\'\"]' + iconPrefix + '([a-zA-Z0-9\-_]*[\'\"])', 'g'),
-        cleanIconReg = new RegExp('[\s\'\"]' + iconPrefix, 'g');
-
+        iconReg = new RegExp('[\\\s\\\'\\\"]' + iconPrefix + '([a-zA-Z0-9\\\-_]*)', 'mg'),
+        cleanIconReg = new RegExp('[\\\s\\\'\\\"]' + iconPrefix, 'g');
     // 遍历svg，生成字体文件
     icon.genarateFonts(settings);
 
@@ -22,7 +21,7 @@ module.exports = function (ret, conf, settings) {
     fis.util.map(ret.src, function (subpath, file) {
 
         var fileName = path.basename(file.toString());
-        if(path.extname(fileName) === '.html'){
+        if(/*path.extname(fileName) === '.html'*/fileName.indexOf('index.html') > -1){
             fileName = path.basename(fileName, '.html');
             var asyncList = file.extras && file.extras.async || [];
             var pageDepMap = {};
@@ -67,8 +66,8 @@ module.exports = function (ret, conf, settings) {
             iconList = uniqList(iconList);
 
             if(iconList.length > 0) {
-                var cssContent = icon.generateCss(iconList);
-                cssContent = cssContent.replace('{{$path}}', path.join(settings.ttfCdn, settings.output + '.ttf').replace(/\\/g, '\/'));
+                var cssContent = icon.generateCss(iconList, settings.pseClass);
+                cssContent = cssContent.replace('{{$path}}', settings.ttfCdn + '/' + settings.output + '.ttf');
                 content = content.replace('</head>', '<style>\r\n' + cssContent + '\r\n</style>\r\n$&');
                 file.setContent(content);
             }

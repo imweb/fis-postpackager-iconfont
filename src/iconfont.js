@@ -72,8 +72,9 @@ exports.genarateFonts = function (opt) {
 
 // 生成 icon 样式
 // ttf 文件引入 cdn 问题
-exports.generateCss = function (iconNames) {
+exports.generateCss = function (iconNames, pseClass) {
     var self = this,
+        pseudoClass = pseClass || 'after',
         maps = self.maps.iconContentMaps || {};
 
     var content = [],
@@ -82,12 +83,12 @@ exports.generateCss = function (iconNames) {
     content.push('@font-face { ');
     content.push('font-family: "mfont";');
     content.push('src: url("{{$path}}") format("truetype");}');
-    content.push('.icon-font{font-family:"iconfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;font-size: 16px;position: relative;vertical-align:-2px;-webkit-font-smoothing: antialiased;}');
+    content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;vertical-align:-2px;-webkit-font-smoothing: antialiased;}');
     iconNames.forEach(function(iconName){
         iconContent = maps[iconName] || '';
         if (typeof iconContent !== 'undefined') {
             iconContent = iconContent.replace('&#xf', '\\f');
-            content.push('.i-' + iconName + ':after{content: "' + iconContent + '";}');
+            content.push('.i-' + iconName + ':' + pseudoClass + '{content: "' + iconContent + '";}');
         }
     });
     return content.join('\r\n');

@@ -1,6 +1,6 @@
 {
   "name": "fis-postpackager-iconfont",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "iconfont",
   "main": "src/index.js",
   "scripts": {
