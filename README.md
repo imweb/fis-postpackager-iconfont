@@ -1,5 +1,4 @@
-# fis-postpackager-iconfont
-参考[fis-preprocessor-iconfont](https://github.com/haledeng/fis-preprocessor-iconfont)。
+
 
 fis-preprocessor-iconfont 只是简单将所有字体的content相关的css放入到每个css文件中，本构建要处理`按需加载，即页面引用了哪些icon，引入相应的css content`。
 
