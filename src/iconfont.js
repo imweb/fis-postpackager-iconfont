@@ -23,6 +23,14 @@ function generateIconContent(n){
     return '&#xf' + decimal2Hex(n);
 }
 
+function mkdir(dir) {
+    if(!fs.existsSync(dir)) {
+        mkdir(path.basename(dir));
+        fs.mkdirSync(dir);
+    } else {
+        
+    }
+}
 
 /*
 * generate font files
@@ -32,7 +40,7 @@ exports.genarateFonts = function (opt) {
 
     var svgPath = opt.svgPath,
         files = fs.readdirSync(svgPath),
-        output = opt.output,
+        output = opt.fontsOutput,
         font = fontCarrier.create(),
         svgsObj = {},
         iconNames = [],
@@ -53,8 +61,10 @@ exports.genarateFonts = function (opt) {
 
     font.setSvg(svgsObj);
 
-    if(!fs.existsSync(path.dirname(output))){
-        fs.mkdirSync(output);
+    var outputDir = path.dirname(output);
+    // mkdir(outputDir);
+    if(!fs.existsSync(outputDir)){
+        fs.mkdirSync(outputDir);
     }
     // 导出字体
     var content = font.output({
@@ -83,7 +93,7 @@ exports.generateCss = function (iconNames, pseClass) {
     content.push('@font-face { ');
     content.push('font-family: "mfont";');
     content.push('src: url("{{$path}}") format("truetype");}');
-    content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;vertical-align:-2px;-webkit-font-smoothing: antialiased;}');
+    content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}');
     iconNames.forEach(function(iconName){
         iconContent = maps[iconName] || '';
         if (typeof iconContent !== 'undefined') {
@@ -91,5 +101,22 @@ exports.generateCss = function (iconNames, pseClass) {
             content.push('.i-' + iconName + ':' + pseudoClass + '{content: "' + iconContent + '";}');
         }
     });
+    // generateHtml(iconNames);
     return content.join('\r\n');
 };
+
+
+// 生成 demo 页面
+function generateHtml(iconNames){
+    var content = [];
+    content.push('<!DOCTYPE html>\r\n<html lang="en">\r\n<head>\r\n<meta charset="UTF-8">\r\n<title>iconfont demo</title>');
+    content.push('<link href="iconfont-embedded.css" rel="stylesheet" type="text/css" /> ');
+    content.push('</head>\r\n<body>');
+
+    iconNames.forEach(function (iconName) {
+        content.push('<i class="icon-font i-' + iconName + '"></i>');
+    });
+    content.push('</body>\r\n</html>');
+
+    fs.writeFileSync('./fonts/demo.html', content.join('\r\n'));
+}

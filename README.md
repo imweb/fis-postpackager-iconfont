@@ -30,7 +30,8 @@ fis-conf.js 配置
     classPrefix: 'i-', // 配置iconfont类名前缀
     svgPath: '../svg',
     output: 'fonts/iconfont',
-    ttfCdn: 'http://' + projConf.cdnRoot.img + '/' + projConf.subPath
+    ttfCdn: 'http://' + projConf.cdnRoot.img + '/' + projConf.subPath,
+    pseClass: 'before' // 伪类名
 }
 ```
 

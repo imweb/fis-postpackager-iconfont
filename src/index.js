@@ -7,21 +7,28 @@ var path = require('path'),
     fs = require('fs'),
     icon = require('./iconfont.js');
 
-module.exports = function (ret, conf, settings) {
+module.exports = function (ret, conf, settings, opt) {
 
     var projectPath = fis.project.getProjectPath(),
         iconPrefix = settings.classPrefix,
         iconReg = new RegExp('[\\\s\\\'\\\"]' + iconPrefix + '([a-zA-Z0-9\\\-_]*)', 'mg'),
         cleanIconReg = new RegExp('[\\\s\\\'\\\"]' + iconPrefix, 'g');
     // 遍历svg，生成字体文件
+    var fontOutPath = path.dirname(projectPath);
+
+    fontOutPath = path.join(fontOutPath, opt.dest);
+    settings.fontsOutput = path.join(fontOutPath, settings.output);
+    // dev | dist 目录不存在
+    if(!fs.existsSync(fontOutPath)) {
+        fs.mkdirSync(fontOutPath);
+    }
     icon.genarateFonts(settings);
 
 
     // html 所有 tpl 依赖项分析
     fis.util.map(ret.src, function (subpath, file) {
-
         var fileName = path.basename(file.toString());
-        if(/*path.extname(fileName) === '.html'*/fileName.indexOf('index.html') > -1){
+        if(path.extname(fileName) === '.html'){
             fileName = path.basename(fileName, '.html');
             var asyncList = file.extras && file.extras.async || [];
             var pageDepMap = {};
@@ -47,27 +54,38 @@ module.exports = function (ret, conf, settings) {
                 }
             });
 
+            // 获取 html 依赖的 js 和 tpl
             var tplDeps = getTplAndJsFromHtml(pageDepMap),
                 tplList = [],
                 jsList = [];
+
+
             for(var i in tplDeps){
                 tplList = tplList.concat(tplDeps[i].tpl || []);
                 jsList = jsList.concat(tplDeps[i].js || []);
             }
             
+            // 数据去重
             tplList = uniqList(tplList);
             jsList = uniqList(jsList);
 
             var iconList = getIconFromHtmlAndDepTpl(file, tplList),
                 jsIconList = getIconFromJs(jsList),
                 content = file.getContent();
-
+                
             iconList = iconList.concat(jsIconList);
             iconList = uniqList(iconList);
 
+
+            var ttfPath = settings.output + '.ttf';
             if(iconList.length > 0) {
                 var cssContent = icon.generateCss(iconList, settings.pseClass);
-                cssContent = cssContent.replace('{{$path}}', settings.ttfCdn + '/' + settings.output + '.ttf');
+                // 指定pack，字体的引入才加上cdn前缀
+                // 方便dev调试，字体引入跨域问题
+                if(opt.pack) {
+                    ttfPath = settings.ttfCdn + '/' + ttfPath;
+                }
+                cssContent = cssContent.replace('{{$path}}', ttfPath);
                 content = content.replace('</head>', '<style>\r\n' + cssContent + '\r\n</style>\r\n$&');
                 file.setContent(content);
             }
