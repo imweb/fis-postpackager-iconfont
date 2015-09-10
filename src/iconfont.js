@@ -25,98 +25,71 @@ function generateIconContent(n){
 
 function mkdir(dir) {
     if(!fs.existsSync(dir)) {
-        mkdir(path.basename(dir));
+        mkdir(path.dirname(dir));
         fs.mkdirSync(dir);
-    } else {
-        
     }
 }
 
 /*
 * generate font files
 */
-exports.genarateFonts = function (opt) {
-    var self = this;
-
+exports.genarateFonts = function (opt, icons) {
     var svgPath = opt.svgPath,
-        files = fs.readdirSync(svgPath),
         output = opt.fontsOutput,
         font = fontCarrier.create(),
         svgsObj = {},
-        iconNames = [],
-        iconContents = [],
-        fileName,
-        iconContentMaps = {},
+        filePath,
         iconContent;
-    files.forEach(function(file){
-        if(path.extname(file) == '.svg'){
-            iconContent = generateIconContent(svgCnt++);
-            fileName = path.basename(file, '.svg');
-            iconNames.push(fileName);
-            iconContents.push(iconContent);
-            iconContentMaps[fileName] = iconContent;
-            svgsObj[iconContent] = fs.readFileSync(path.join(svgPath, file)).toString();
+    icons.forEach(function(icon, index){
+        filePath = path.join(svgPath, icon + '.svg');
+        if(fs.existsSync(filePath)) {
+            iconContent = generateIconContent(index);
+            svgsObj[iconContent] = fs.readFileSync(filePath).toString();
+        } else {
+            fis.log.warning(filePath + ' ------  svg 文件不存在，如果是构建误报，请忽略');
         }
     });
 
+    // console.log(svgsObj);
     font.setSvg(svgsObj);
 
-    var outputDir = path.dirname(output);
-    // mkdir(outputDir);
-    if(!fs.existsSync(outputDir)){
-        fs.mkdirSync(outputDir);
-    }
-    // 导出字体
-    var content = font.output({
-        path: output
-    });
+    mkdir(output);
 
-    self.maps = {
-        iconContentMaps: iconContentMaps, // icon 名和 content 的 map
-        iconContents: iconContents, // content 
-        fontContent: content, // 字体文件{ttf: xxx, woff: xxx}
-        iconNames: iconNames // icon名字，和svg 名字，类名有对应关系
-    };
-    return self.maps; 
+    var outFontsContent = font.output({}),
+        outFileName = 'iconfont';
+
+    for(var type in outFontsContent){
+        if(outFontsContent.hasOwnProperty(type)) {
+            fs.writeFileSync(output + '/' + outFileName + '.' + type, outFontsContent[type]);
+        }  
+    }
+    return opt.output + '/' + outFileName
 };
+
 
 // 生成 icon 样式
 // ttf 文件引入 cdn 问题
-exports.generateCss = function (iconNames, pseClass) {
+exports.generateCss = function (iconNames, opt, start) {
     var self = this,
-        pseudoClass = pseClass || 'after',
-        maps = self.maps.iconContentMaps || {};
+        start = start || 0,
+        pseudoClass = opt.pseClass || 'after';
 
     var content = [],
         iconContent;
-    // 字体的引用和每个css的引入路径有关系
+
     content.push('@font-face { ');
     content.push('font-family: "mfont";');
-    content.push('src: url("{{$path}}") format("truetype");}');
+    content.push('src: url("{{$path}}.eot");'); // ie9
+    content.push('src: url("{{$path}}.eot?#iefix") format("embedded-opentype"),'); // ie6-8
+    content.push('url("{{$path}}.woff") format("woff"),');  // chrome、firefox
+    content.push('url("{{$path}}.ttf") format("truetype");}'); // chrome、firefox、opera、Safari, Android, iOS 4.2+
     content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}');
     iconNames.forEach(function(iconName){
-        iconContent = maps[iconName] || '';
-        if (typeof iconContent !== 'undefined') {
+        iconContent = generateIconContent(start++);
+        if (fs.existsSync(path.join(opt.svgPath, iconName + '.svg')) ) {
             iconContent = iconContent.replace('&#xf', '\\f');
             content.push('.i-' + iconName + ':' + pseudoClass + '{content: "' + iconContent + '";}');
-        }
+        } 
     });
-    // generateHtml(iconNames);
     return content.join('\r\n');
 };
-
-
-// 生成 demo 页面
-function generateHtml(iconNames){
-    var content = [];
-    content.push('<!DOCTYPE html>\r\n<html lang="en">\r\n<head>\r\n<meta charset="UTF-8">\r\n<title>iconfont demo</title>');
-    content.push('<link href="iconfont-embedded.css" rel="stylesheet" type="text/css" /> ');
-    content.push('</head>\r\n<body>');
-
-    iconNames.forEach(function (iconName) {
-        content.push('<i class="icon-font i-' + iconName + '"></i>');
-    });
-    content.push('</body>\r\n</html>');
-
-    fs.writeFileSync('./fonts/demo.html', content.join('\r\n'));
-}
