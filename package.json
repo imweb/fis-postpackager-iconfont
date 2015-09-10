@@ -1,27 +1,25 @@
 {
   "name": "fis-postpackager-iconfont",
-  "version": "0.1.5",
+  "version": "0.5.2",
   "description": "iconfont",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node build.js"
   },
   "keywords": [
     "fis",
-    "widget",
-    "inline"
+    "iconfont"
   ],
   "author": {
     "name": "helondeng",
     "email": "dhlwust@163.com"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/haledeng/fis-postpackager-widgetinhtml"
-  },
   "readmeFilename": "README.md",
   "license": "BSD",
   "dependencies": {
-    "font-carrier": "0.0.5"
+    "font-carrier": "0.0.5",
+    "step": "0.0.5",
+    "adm-zip": "0.4.7"
   }
 }
