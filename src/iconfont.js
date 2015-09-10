@@ -8,9 +8,6 @@ var fs = require('fs'),
     fontCarrier = require('font-carrier');
 
 
-var svgCnt = 0;
-
-
 // 十进制 转 16进制
 function decimal2Hex(n){
     var hex = n.toString(16);
@@ -32,6 +29,7 @@ function mkdir(dir) {
 
 /*
 * generate font files
+* 字体文件 md5
 */
 exports.genarateFonts = function (opt, icons) {
     var svgPath = opt.svgPath,
@@ -46,36 +44,48 @@ exports.genarateFonts = function (opt, icons) {
             iconContent = generateIconContent(index);
             svgsObj[iconContent] = fs.readFileSync(filePath).toString();
         } else {
-            fis.log.warning(filePath + ' ------  svg 文件不存在，如果是构建误报，请忽略');
+            fis.log.warning(filePath + ' ------ svg file does not exist!');
         }
+
     });
 
-    // console.log(svgsObj);
     font.setSvg(svgsObj);
 
+    // var outputDir = path.dirname(output);
+    // mkdir(outputDir);
     mkdir(output);
 
     var outFontsContent = font.output({}),
         outFileName = 'iconfont';
+    if(opt.ttfHash) {
+        outFileName += opt._seperator + fis.util.md5(JSON.stringify(svgsObj));
+    }
 
     for(var type in outFontsContent){
         if(outFontsContent.hasOwnProperty(type)) {
             fs.writeFileSync(output + '/' + outFileName + '.' + type, outFontsContent[type]);
         }  
     }
-    return opt.output + '/' + outFileName
+    return opt.output + '/' + outFileName;
+    // 导出字体
+    // font.output({
+    //     path: output
+    // });
 };
 
-
-// 生成 icon 样式
-// ttf 文件引入 cdn 问题
-exports.generateCss = function (iconNames, opt, start) {
+/*
+* 根据icon生成对应的字体
+* 需要判断实际的svg（正则匹配到了不是icon的表达式）文件是否存在，否则会有多余样式
+ */
+exports.generateCss = function (opt, iconNames, pseClass, start, step) {
     var self = this,
+        pseudoClass = ~['after', 'before'].indexOf(pseClass) ? pseClass : 'after',
         start = start || 0,
-        pseudoClass = opt.pseClass || 'after';
+        step = step || 1;
 
     var content = [],
         iconContent;
+    // 字体的引用和每个css的引入路径有关系
 
     content.push('@font-face { ');
     content.push('font-family: "mfont";');
@@ -83,13 +93,20 @@ exports.generateCss = function (iconNames, opt, start) {
     content.push('src: url("{{$path}}.eot?#iefix") format("embedded-opentype"),'); // ie6-8
     content.push('url("{{$path}}.woff") format("woff"),');  // chrome、firefox
     content.push('url("{{$path}}.ttf") format("truetype");}'); // chrome、firefox、opera、Safari, Android, iOS 4.2+
+
     content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}');
     iconNames.forEach(function(iconName){
         iconContent = generateIconContent(start++);
-        if (fs.existsSync(path.join(opt.svgPath, iconName + '.svg')) ) {
+        if (typeof iconContent !== 'undefined' && fs.existsSync(path.join(opt.svgPath, iconName + '.svg')) ) {
             iconContent = iconContent.replace('&#xf', '\\f');
             content.push('.i-' + iconName + ':' + pseudoClass + '{content: "' + iconContent + '";}');
-        } 
+        }
     });
     return content.join('\r\n');
 };
+
+
+exports.exportCssFile = function(iconNames, pseClass, path) {
+    var content = this.generateCss(iconNames, pseClass);
+    fs.writeFileSync(path, content, 'utf-8');
+}
