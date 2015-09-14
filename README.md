@@ -31,7 +31,10 @@ postpackager: fis.plugin('iconfont', {
     //可选，匹配的icon前缀，即类名是i-xxx, optional, 默认是 i-
     classPrefix: 'i-',
     // 本地svg路径，方便生成字体文件，这里可以使用脚本同步iconfont平台上的svg
-    // 默认指向 fis3-postpackager-iconfont 安装目录下的svgs文件夹（安装插件是，自动执行脚本，同步iconfont.imweb.io平台上的svg文件）,若fis3-postpackager-iconfont安装目录下的svgs目录中有svg，这里可以不需要配置；否者，需要手动同步svg到项目目录，然后配置svgPath
+    // 默认指向 fis3-postpackager-iconfont 安装目录下的svgs文件夹
+    //（安装插件是，自动执行脚本，同步iconfont.imweb.io平台上的svg文件）,
+    // 若fis3-postpackager-iconfont安装目录下的svgs目录中有svg，这里可以不需要配置；
+    // 否者，需要手动同步svg到项目目录，然后配置svgPath
     svgPath: '../svgs',
     // 必须，字体的产出路径
     output: 'modules/common/fonts',
