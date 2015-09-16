@@ -32,8 +32,8 @@ function mkdir(dir) {
 * 字体文件 md5
 */
 exports.genarateFonts = function (opt, icons) {
-    var svgPath = opt.svgPath,
-        output = opt.fontsOutput,
+    var svgPath = opt._svgPath,
+        // output = opt.fontsOutput,
         font = fontCarrier.create(),
         svgsObj = {},
         filePath,
@@ -51,35 +51,22 @@ exports.genarateFonts = function (opt, icons) {
 
     font.setSvg(svgsObj);
 
-    // var outputDir = path.dirname(output);
-    // mkdir(outputDir);
-    mkdir(output);
-
     var outFontsContent = font.output({}),
         outFileName = 'iconfont';
-    if(opt.ttfHash) {
-        outFileName += opt._seperator + fis.util.md5(JSON.stringify(svgsObj));
-    }
 
-    for(var type in outFontsContent){
-        if(outFontsContent.hasOwnProperty(type)) {
-            fs.writeFileSync(output + '/' + outFileName + '.' + type, outFontsContent[type]);
-        }  
-    }
-    return opt.output + '/' + outFileName;
-    // 导出字体
-    // font.output({
-    //     path: output
-    // });
+    return {
+        content: outFontsContent,
+        subpath: opt.output + '/' + outFileName
+    };
 };
 
 /*
 * 根据icon生成对应的字体
 * 需要判断实际的svg（正则匹配到了不是icon的表达式）文件是否存在，否则会有多余样式
  */
-exports.generateCss = function (opt, iconNames, pseClass, start, step) {
+exports.generateCss = function (opt, iconNames, start, step) {
     var self = this,
-        pseudoClass = ~['after', 'before'].indexOf(pseClass) ? pseClass : 'after',
+        pseudoClass = ~['after', 'before'].indexOf(opt.pseClass) ? opt.pseClass : 'after',
         start = start || 0,
         step = step || 1;
 
@@ -89,10 +76,10 @@ exports.generateCss = function (opt, iconNames, pseClass, start, step) {
 
     content.push('@font-face { ');
     content.push('font-family: "mfont";');
-    content.push('src: url("{{$path}}.eot");'); // ie9
-    content.push('src: url("{{$path}}.eot?#iefix") format("embedded-opentype"),'); // ie6-8
-    content.push('url("{{$path}}.woff") format("woff"),');  // chrome、firefox
-    content.push('url("{{$path}}.ttf") format("truetype");}'); // chrome、firefox、opera、Safari, Android, iOS 4.2+
+    content.push('src: url("' + opt._fontCdn.eot + '");'); // ie9
+    content.push('src: url("' + opt._fontCdn.eot + '?#iefix") format("embedded-opentype"),'); // ie6-8
+    content.push('url("' + opt._fontCdn.woff + '") format("woff"),');  // chrome、firefox
+    content.push('url("' + opt._fontCdn.ttf + '") format("truetype");}'); // chrome、firefox、opera、Safari, Android, iOS 4.2+
 
     content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}');
     iconNames.forEach(function(iconName){
