@@ -39,8 +39,7 @@ var path = require('path'),
 var iconfontTag = new RegExp('<!--ICONFONT_PLACEHOLDER-->');
 
 var fisVersion = fis.version.split('.')[0],
-    isFis3 = fisVersion == 3,
-    seperator = isFis3 ? (fis.get('project.md5Connector') || '.')  : '.';
+    isFis3 = fisVersion === 3;
 
 // 数组去重
 function uniqList(arr) {
@@ -57,73 +56,6 @@ function uniqList(arr) {
     return ret;
 }
 
-// 获取fis config中的信息
-// fis3 获取css cdn和ttf cdn
-// useHash
-// 字体和css cdn前缀
-function getFis3ConfigInfo() {
-    var globMatches = fis.config.getMatches(),
-        globMatch,
-        globMatchStr,
-        settings = {},
-        properties;
-    // 根据配置的match获取cdn前缀
-    // 就近查找
-    for(var i = globMatches.length - 1; i > 0; i--) {
-        globMatch = globMatches[i];
-        globMatchStr = globMatch.pattern.toString();
-        // 有些正则传到glob里面有报错
-        if(~globMatchStr.indexOf('css') || ~globMatchStr.indexOf('::image') || ~globMatchStr.indexOf('ttf')) {
-            properties = globMatch.properties;
-            if(properties.domain) {
-                if(_.glob(globMatchStr, '*.css') && !settings.cssCdn) {
-                    settings.cssCdn = properties.domain;
-                }
-                if(_.glob(globMatchStr, '.ttf') && !settings.ttfCdn) {
-                    settings.ttfCdn = properties.domain;
-                }
-            }
-
-            if(properties.useHash) {
-                if(_.glob(globMatchStr, '*.css') && !settings.cssHash) {
-                    settings.cssHash = properties.useHash;
-                } 
-                if(_.glob(globMatchStr, '.ttf') && !settings.ttfHash) {
-                    settings.ttfHash = properties.useHash;
-                } 
-            }
-        }
-    }
-
-    return settings;
-}
-
-// 获取fis config中的信息
-// fis2 获取css cdn和ttf cdn
-// useHash
-// 字体和css cdn前缀
-function getFis2ConfigInfo() {
-    var settings = {};
-    var domains = fis.config.get('roadmap.domain');
-    for(var key in domains) {
-        if (domains.hasOwnProperty(key)) {
-            if(_.glob(key, '.css')) {
-                settings.cssCdn = domains[key];
-            }
-
-            if(_.glob(key, '.ttf')) {
-                settings.ttfCdn = domains[key];
-            }
-        }
-    }
-    settings.cssHash = true;
-    settings.ttfHash = true;
-    return settings;
-}
-
-
-
-
 /*
 * 匹配文本中的icon
  */
@@ -138,7 +70,7 @@ function getIconMatches (content, iconReg, cleanIconReg) {
 }
 
 
-
+// ret.pkg生成虚拟文件，产出由fis本身处理
 module.exports = function (ret, conf, settings, opt) {
 
     var files = ret.src,
@@ -149,55 +81,20 @@ module.exports = function (ret, conf, settings, opt) {
         iconReg = new RegExp('icon-font\\\s' + iconPrefix + '([a-zA-Z0-9\\\-_]*)', 'mg'),
         cleanIconReg = new RegExp('icon-font\\\s' + iconPrefix, 'g');
 
+    // svg在插件目录下，安装插件时，就installsvg
+    // var defaultSvgPath = path.join(path.dirname(__dirname), 'svgs');
+    var configSvgPath = settings.svgPath ? path.join(projectPath, settings.svgPath) : '';
 
-    var defaultSvgPath = path.join(path.dirname(__dirname), 'svgs'),
-        configSvgPath = settings.svgPath ? path.join(projectPath, settings.svgPath) : '';
-
-    settings.svgPath = configSvgPath || defaultSvgPath;
+    settings._svgPath = configSvgPath;
 
 
-
-    // fis.log.info('请确保 svg 已经存在本地，可以存在以下路径：\n\t 1. 插件 fis3-postpackager-iconfont 目录下，不要配置svgPath路径；\n\t 2. 项目目录下，请在插件的 "svgPath" 中进行配置');
-
-    if(!settings.svgPath) {
-        fis.log.error('插件 fis3-postpackager-iconfont 中属性 svgPath --- 必须配置（本地svg路径，方便产出字体）！');
+    if(!fs.existsSync(configSvgPath)) {
+        fis.log.error('目录 --' + configSvgPath + '-- 不存在, 请配置正确的 fis-postpackager-iconfont 插件的 "svgPath" 属性');
     }
 
-    if(!fs.existsSync(configSvgPath) && configSvgPath) {
-        fis.log.error('目录 --' + configSvgPath + '-- 不存在, 请不要配置 fis3-postpackager-iconfont 插件的 "svgPath" 属性');
-    }
-
-    if(!fs.existsSync(defaultSvgPath) && settings.svgPath === defaultSvgPath) {     
-        fis.log.error('插件 fis3-postpackager-iconfont 目录下 svgs 目录不存在 --' + defaultSvgPath + '-- 不存在');
-    }
-
-    if(!settings.output) {
-        fis.log.error('插件 fis3-postpackager-iconfont 中属性 output --- 必须配置（字体的产出路径）！');
-    }
-
-    // console.log(fis.config.media(fis.project.currentMedia())._sortedMatches);
-
-    // 默认的字体文件名是iconfont.ttf
-    // 字体文件名没有md5
-    // console.log(sources[0].deploy/*.to*/);
-    // 可能有多个deploy
-    
-    var fontOutPath;
-    if(isFis3) {
-        var sources = _.toArray(files);
-        fontOutPath = path.join(projectPath, sources[0].deploy.to || sources[0].deploy[0].to);
-    } else {
-        fontOutPath = path.join( path.dirname(projectPath), opt.dest);
-    }
-    
-     
-    settings.fontsOutput = path.join(fontOutPath, settings.output);
-
-    //  所有svg 的字体文件都生成了，实际上没有必要
-    // icon.genarateFonts(settings);
 
     var ignoreLibList = settings.ignore ||  ['zepto', 'badjs', 'mod', 'bj-report', 'tools', 'db'];
-    
+
     var pages = [],
         ext,
         content,
@@ -222,10 +119,9 @@ module.exports = function (ret, conf, settings, opt) {
             if(ext.dirname === projectPath ) {
                 pages.push(file);
             }
-        } else if(file.isJsLike && ~~ignoreLibList.indexOf(ext.filename)) {     
+        } else if(file.isJsLike && ~~ignoreLibList.indexOf(ext.filename)) {   
             // 基础库忽略查找
             // js 中iconfont查找方式不同 addClass('i-xxx');
-            
             var matches = content.match(/addClass\([\'\"]([^\'\"\s]*\s)?i-([^\'\"\s]*)/mg);
             if(matches){
                 // iconfont 无法覆盖
@@ -237,16 +133,10 @@ module.exports = function (ret, conf, settings, opt) {
                 allIconList = allIconList.concat(matches);
             }
             
-        } else if (file.isCssLike) {
-            // 获取其他css的cdn前缀
-            // if(!settings.cssCdn) {
-            //     settings.cssCdn = file.domain;
-            // }
-        }
+        } 
     });
 
     
-    // settings.cssCdn = settings.cssCdn || cssCdn;
     
     /*
     * 整个项目中的icon
@@ -256,47 +146,54 @@ module.exports = function (ret, conf, settings, opt) {
      */ 
     allIconList = uniqList(allIconList);
 
-
-    settings = _.merge(settings, isFis3 ? getFis3ConfigInfo() : getFis2ConfigInfo());
-
-    settings._seperator = seperator;
-    console.log(settings);
     /*
     * 按需生成字体文件
      */
-    var fontsFile = icon.genarateFonts(settings, allIconList);
+    // var fontsFile = icon.genarateFonts(settings, allIconList);
 
-    var cssContent = icon.generateCss(settings, allIconList, settings.pseClass),
-        ttfPath;
+    var fontObj = icon.genarateFonts(settings, allIconList),
+        outFontsContent = fontObj.content;
 
-    ttfPath = settings.ttfCdn + '/' + fontsFile;
+    settings._fontCdn = {};
+    // 这种pkg的处理方式有兼容问题，fis2中getUrl没有返回domain
 
-
-
-    cssContent = cssContent.replace(/\{\{\$path\}\}/mg, ttfPath);
-
-    var cssFileHash = 'font.css';
-    // file md5
-    if(settings.cssHash) {
-        cssFileHash = 'font' + seperator + _.md5(cssContent) + '.css';
+    for(var type in outFontsContent){
+        if(outFontsContent.hasOwnProperty(type)) {
+            var fontPkg = fis.file(projectPath, fontObj.subpath + '.' + type);
+            fontPkg.setContent(outFontsContent[type]);
+            if(!isFis3 && opt.dest === 'dev') {
+                // dev 模式下 useHash = false
+                fontPkg.useHash = false;
+            }
+            ret.pkg[fontPkg.subpath] = fontPkg;
+            // getUrl 参数为了兼容fis2
+            settings._fontCdn[type] = fontPkg.getUrl(fontPkg.useHash, fontPkg.useDomain);
+        }  
     }
 
-
-    var cssFileUrl = path.join(settings.fontsOutput, cssFileHash);
-    fs.writeFileSync(cssFileUrl, cssContent, 'utf-8');
+    var cssContent = icon.generateCss(settings, allIconList);
 
 
+    var cssFileHash = 'font.css';
 
-    var file = fis.file(cssFileUrl);
-    
+    cssFileHash = path.join(settings.output, cssFileHash);
+
+    // 这种方式 fis2有问题，dev模式下，useHash 都是true，导致 getUrl有问题
+    var cssFile = fis.file(projectPath, cssFileHash);
+    cssFile.setContent(cssContent);
+    if(!isFis3 && opt.dest === 'dev') {
+        // dev 模式下 useHash = false
+        cssFile.useHash = false;
+    }
+    ret.pkg[cssFile.subpath] = cssFile;
+
     // 外链方式引入
-    var inlineCss = '<link rel="stylesheet" type="text/css" href="' + (settings.cssCdn || '.') + '/' + path.join(settings.output, cssFileHash).replace(/\\/g, '/') + '" />\r\n';
+    var inlineCss = '<link rel="stylesheet" type="text/css" href="' + cssFile.getUrl(cssFile.useHash, cssFile.useDomain) + '" />\r\n';
     
     if(settings.cssInline) {
         // inline 方式引入
         inlineCss = '<style>\r\n' + cssContent + '\r\n</style>';
     }
-
 
 
     /*
