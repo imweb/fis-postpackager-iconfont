@@ -1,28 +1,29 @@
 {
-  "name": "fis-postpackager-iconfont",
-  "version": "0.7.0",
-  "description": "iconfont",
-  "main": "src/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "fis",
-    "iconfont"
-  ],
-  "author": {
-    "name": "helondeng",
-    "email": "dhlwust@163.com"
-  },
-  "readmeFilename": "README.md",
-  "license": "BSD",
-  "dependencies": {
-    "font-carrier": "0.0.5",
-    "step": "0.0.5",
-    "adm-zip": "0.4.7"
-  },
-  "readme": "# fis-postpackager-iconfont\r\n兼容fis3\r\n\r\n\r\n### 安装\r\n```\r\nnpm install fis-postpackager-iconfont --save\r\n```\r\n\r\n\r\n### 背景\r\n\r\n项目中使用iconfont时，需要将 SVG 转化成 font 字体文件，同时解决字体css的引入的问题，整个流程比较繁琐。\r\n\r\n\r\n### 目标\r\n在 html 标签上挂载和 svg 同名（或者有映射关系）的类名，构建解决：\r\n+ SVG 转化 字体文件\r\n+ css 的引入问题\r\n通过上面的方式，可以使`iconfont 的使用对开发透明` 。\r\n最终生成的字体存放在一个可配置的目录下，同时字体的css引入直接插入到html中, 在html中使用 `<!--ICONFONT_PLACEHOLDER-->`，占位符指明最终css的插入位置，如未执行，则会插入在  `</head>之前`\r\n\r\n### 使用方式\r\nfis-conf.js 配置\r\n```\r\n// settings\r\npostpackager: fis.plugin('iconfont', {\r\n    // 遍历js时，可以忽略的基础库，optional\r\n    ignore: ['zepto', 'badjs', 'mod', 'bj-report', 'tools', 'db.js'],\r\n    // 匹配的icon前缀，即类名是i-xxx, optional, 默认是 i-\r\n    classPrefix: 'i-',\r\n    // 本地svg路径，方便生成字体文件，这里可以使用脚本同步iconfont平台上的svg\r\n    // 默认指向 fis3-postpackager-iconfont 安装目录下的svgs文件夹（安装插件是，自动执行脚本，同步iconfont.imweb.io平台上的svg文件）,若fis3-postpackager-iconfont安装目录下的svgs目录中有svg，这里可以不需要配置；否者，需要手动同步svg到项目目录，然后配置svgPath\r\n    svgPath: '../svgs',\r\n    // 字体的产出路径,  require\r\n    output: 'modules/common/fonts',\r\n    // css 是否inline到页面, 默认已link方式引入, optional\r\n    cssInline: true,\r\n    // 字体content使用的伪类，只能填after或者before，默认为after, optional\r\n    pseClass: 'before' // 伪类名\r\n})\r\n\r\n// 最简配置\r\npostpackager: fis.plugin('iconfont', {\r\n    output: 'modules/common/fonts'\r\n})\r\n\r\n```\r\n\r\n\r\n\r\n",
-  "_id": "fis-postpackager-iconfont@0.7.0",
-  "_from": "fis-postpackager-iconfont@"
-  }
+    "name": "fis-postpackager-iconfont",
+    "version": "1.0.0",
+    "description": "iconfont",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "mocha test/"
+    },
+    "keywords": [
+        "fis",
+        "iconfont"
+    ],
+    "author": {
+        "name": "helondeng",
+        "email": "dhlwust@163.com"
+    },
+    "readmeFilename": "README.md",
+    "license": "BSD",
+    "dependencies": {
+        "font-carrier": "0.0.5",
+        "step": "0.0.5",
+        "adm-zip": "0.4.7"
+    },
+    "devDependencies": {
+        "chai": "^3.2.0",
+        "fis3": "^3.0.17",
+        "mocha": "^2.2.5"
+    }
 }

@@ -84,7 +84,7 @@ exports.generateCss = function (opt, iconNames, start, step) {
     content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}');
     iconNames.forEach(function(iconName){
         iconContent = generateIconContent(start++);
-        if (typeof iconContent !== 'undefined' && fs.existsSync(path.join(opt.svgPath, iconName + '.svg')) ) {
+        if (typeof iconContent !== 'undefined' && fs.existsSync(path.join(opt._svgPath, iconName + '.svg')) ) {
             iconContent = iconContent.replace('&#xf', '\\f');
             content.push('.i-' + iconName + ':' + pseudoClass + '{content: "' + iconContent + '";}');
         }

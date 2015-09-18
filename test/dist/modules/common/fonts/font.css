@@ -1,0 +1,10 @@
+@font-face { 
+font-family: "mfont";
+src: url("http://9.url.cn/image/modules/common/fonts/iconfont.eot");
+src: url("http://9.url.cn/image/modules/common/fonts/iconfont.eot?#iefix") format("embedded-opentype"),
+url("http://9.url.cn/image/modules/common/fonts/iconfont.woff") format("woff"),
+url("http://9.url.cn/image/modules/common/fonts/iconfont.ttf") format("truetype");}
+.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}
+.i-add:before{content: "\f000";}
+.i-alert:before{content: "\f001";}
+.i-back:before{content: "\f002";}

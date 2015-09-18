@@ -146,6 +146,7 @@ module.exports = function (ret, conf, settings, opt) {
      */ 
     allIconList = uniqList(allIconList);
 
+    fis.emit('iconfont:allIcons', allIconList);
     /*
     * 按需生成字体文件
      */
@@ -172,7 +173,6 @@ module.exports = function (ret, conf, settings, opt) {
     }
 
     var cssContent = icon.generateCss(settings, allIconList);
-
 
     var cssFileHash = 'font.css';
 
