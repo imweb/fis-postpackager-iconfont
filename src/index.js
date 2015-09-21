@@ -146,7 +146,10 @@ module.exports = function (ret, conf, settings, opt) {
      */ 
     allIconList = uniqList(allIconList);
 
-    fis.emit('iconfont:allIcons', allIconList);
+    if(isFis3) {
+        fis.emit('iconfont:allIcons', allIconList);
+    }
+    
     /*
     * 按需生成字体文件
      */
