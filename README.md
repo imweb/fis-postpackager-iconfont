@@ -69,10 +69,10 @@ fis.config.merge({
         }
     },
     domain: {
-        '.ttf': 'cdn前缀',
-        '.svg': 'cdn前缀',
-        '.woff': 'cdn前缀',
-        '.eot': 'cdn前缀'
+        '**.ttf': 'cdn前缀',
+        '**.svg': 'cdn前缀',
+        '**.woff': 'cdn前缀',
+        '**.eot': 'cdn前缀'
     }
 });
 ```
