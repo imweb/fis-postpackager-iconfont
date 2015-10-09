@@ -67,6 +67,12 @@ fis.config.merge({
                output: 'modules/common/fonts' 
             }
         }
+    },
+    domain: {
+        '.ttf': 'cdn前缀',
+        '.svg': 'cdn前缀',
+        '.woff': 'cdn前缀',
+        '.eot': 'cdn前缀',
     }
 });
 ```
