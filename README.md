@@ -27,23 +27,24 @@ npm install fis-postpackager-iconfont -g
 ```
 // settings
 postpackager: fis.plugin('iconfont', {
-    //**可选**，遍历js时，可以忽略的基础库
+    //可选，遍历js时，可以忽略的基础库
     ignore: ['zepto', 'badjs', 'mod', 'bj-report', 'tools', 'db.js'],
-    //**可选**，匹配的icon前缀，即类名是i-xxx, optional, 默认是 i-
+    //可选，匹配的icon前缀，即类名是i-xxx, optional, 默认是 i-
     classPrefix: 'i-',
     // 本地svg路径，方便生成字体文件，这里可以使用脚本同步iconfont平台上的svg
     // 默认指向 fis3-postpackager-iconfont 安装目录下的svgs文件夹
     //（安装插件是，自动执行脚本，同步iconfont.imweb.io平台上的svg文件）,
     // 若fis3-postpackager-iconfont安装目录下的svgs目录中有svg，这里可以不需要配置；
     // 否者，需要手动同步svg到项目目录，然后配置svgPath
-    // **必须**
     svgPath: '../svgs',
-    // **必须**，字体的产出路径
+    // 必须，字体的产出路径
     output: 'modules/common/fonts',
-    // **可选**， css 是否inline到页面, 默认已link方式引入
+    //可选， css 是否inline到页面, 默认已link方式引入
     cssInline: true,
-    // **可选**， 字体content使用的伪类，只能填after或者before，默认为after
-    pseClass: 'before' // 伪类名
+    //可选， 字体content使用的伪类，只能填after或者before，默认为after
+    pseClass: 'before', 
+    // h5里面可以将ttf文件base64引入
+    base64: false 
 })
 
 // 最简配置
@@ -68,12 +69,6 @@ fis.config.merge({
                output: 'modules/common/fonts' 
             }
         }
-    },
-    domain: {
-        '**.ttf': 'cdn前缀',
-        '**.svg': 'cdn前缀',
-        '**.woff': 'cdn前缀',
-        '**.eot': 'cdn前缀'
     }
 });
 ```
