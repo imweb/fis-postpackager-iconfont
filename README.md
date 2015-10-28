@@ -49,6 +49,7 @@ postpackager: fis.plugin('iconfont', {
 
 // 最简配置
 postpackager: fis.plugin('iconfont', {
+    svgPath: '../svgs',
     output: 'modules/common/fonts'
 })
 
