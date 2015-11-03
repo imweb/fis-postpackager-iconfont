@@ -109,7 +109,7 @@ exports.generateBase64Css = function(opt, iconNames, ttf, start, step) {
     var content = [],
         iconContent;
     content.push('@font-face { ');
-    content.push('font-family: "iconfont";');
+    content.push('font-family: "mfont";');
     content.push('src: url("data:application/octet-stream;base64,' + fontBase64 + '") format("truetype");}');
 
     content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}');
