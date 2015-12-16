@@ -60,7 +60,7 @@ function uniqList(arr) {
         item;
     for (var k = 0, len = arr.length; k < len; k++) {
         item = arr[k];
-        if (!tmpl[item]) {
+        if (item && !tmpl[item]) {
             tmpl[item] = 1;
             ret.push(item);
         }
