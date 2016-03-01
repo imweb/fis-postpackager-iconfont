@@ -50,7 +50,8 @@ var DEF_CONF = {
     output: 'fonts/iconfont',
     cssInline: false,
     pseClass: 'before',
-    base64: false
+    base64: false,
+    recursive: 0
 };
 
 // 数组去重
@@ -81,6 +82,21 @@ function getIconMatches(content, iconReg, cleanIconReg) {
     return matches || [];
 }
 
+function isMatchPath(source, parentPath, recursive) {
+
+    if(!recursive) {
+        return source === parentPath;
+    }
+
+    //recursive 支持iconfont资源写入src/xxx下的html文件
+    var index = source.lastIndexOf('/');
+    if(index > -1) {
+        if(source.substring(0,index) === parentPath) {
+            return true;
+        }
+    }
+    return false;
+}
 
 // ret.pkg生成虚拟文件，产出由fis本身处理
 module.exports = function(ret, conf, settings, opt) {
@@ -98,6 +114,8 @@ module.exports = function(ret, conf, settings, opt) {
     // svg在插件目录下，安装插件时，就installsvg
     // var defaultSvgPath = path.join(path.dirname(__dirname), 'svgs');
     var configSvgPath = settings.svgPath ? path.join(projectPath, settings.svgPath) : '';
+
+    var recursive = parseInt(settings.recursive, 10);
 
     settings._svgPath = configSvgPath;
 
@@ -130,9 +148,13 @@ module.exports = function(ret, conf, settings, opt) {
 
             // 需要添加css的页面
             // 项目根目录下面的html文件，认定为是业务页面，需要添加字体文件
-            if (ext.dirname === projectPath) {
+
+            if (isMatchPath(ext.dirname, projectPath, recursive)){
                 pages.push(file);
             }
+
+
+
         } else if (file.isJsLike && ~~ignoreLibList.indexOf(ext.filename)) {
             // 基础库忽略查找
             // js 中iconfont查找方式不同 addClass('i-xxx');
