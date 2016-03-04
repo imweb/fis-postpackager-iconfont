@@ -44,7 +44,8 @@ postpackager: fis.plugin('iconfont', {
     //可选， 字体content使用的伪类，只能填after或者before，默认为after
     pseClass: 'before', 
     // h5里面可以将ttf文件base64引入
-    base64: false 
+    base64: false,
+    ignoreSrc: [] // glob 表达式，指定哪些文件不需要遍历，在引用组件时，有可能组件本身已经处理了iconfont。
 })
 
 // 最简配置

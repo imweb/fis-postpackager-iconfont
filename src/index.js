@@ -44,15 +44,32 @@ var fisVersion = fis.version.split('.')[0],
 
 
 var DEF_CONF = {
-    libs: ['zepto', 'common', 'qqapi'],
     classPrefix: 'i-',
     svgPath: '../svgs',
     output: 'fonts/iconfont',
     cssInline: false,
     pseClass: 'before',
     base64: false,
-    recursive: 0
+    recursive: 0,
+    ignoreSrc: []
 };
+
+// 处理glob表达式
+function getIncludeAndExclude(conf) {
+    var ret = {
+        include: [],
+        exclude: []
+    };
+
+    conf.forEach(function(glob) {
+        if (/^!/.test(glob)) {
+            ret.exclude.push(glob.replace(/^!/, ''));
+        } else {
+            ret.include.push(glob);
+        }
+    });
+    return ret;
+}
 
 // 数组去重
 function uniqList(arr) {
@@ -84,14 +101,14 @@ function getIconMatches(content, iconReg, cleanIconReg) {
 
 function isMatchPath(source, parentPath, recursive) {
 
-    if(!recursive) {
+    if (!recursive) {
         return source === parentPath;
     }
 
     //recursive 支持iconfont资源写入src/xxx下的html文件
     var index = source.lastIndexOf('/');
-    if(index > -1) {
-        if(source.substring(0,index) === parentPath) {
+    if (index > -1) {
+        if (source.substring(0, index) === parentPath) {
             return true;
         }
     }
@@ -132,10 +149,19 @@ module.exports = function(ret, conf, settings, opt) {
         content,
         eachFileIconList = [],
         allIconList = [];
+
+    var inAndEx = getIncludeAndExclude(settings.ignoreSrc);
     // whole project icon list
     _.map(files, function(subpath, file) {
         ext = _.ext(file.toString());
         content = file.getContent();
+
+        // 配置中有ignore，部分文件不检查是否有icon，直接忽略
+        if (settings.ignoreSrc.length > 0 && !_.filter(file.subpath, '**', inAndEx.exclude)) {
+            return;
+        }
+
+
         // src 目录下的 html文件
         // ~['.html', '.js', '.tpl']
         // if(~['.html', '.tpl'].indexOf(ext.ext)) {
@@ -149,7 +175,7 @@ module.exports = function(ret, conf, settings, opt) {
             // 需要添加css的页面
             // 项目根目录下面的html文件，认定为是业务页面，需要添加字体文件
 
-            if (isMatchPath(ext.dirname, projectPath, recursive)){
+            if (isMatchPath(ext.dirname, projectPath, recursive)) {
                 pages.push(file);
             }
 

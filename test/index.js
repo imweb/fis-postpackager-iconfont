@@ -33,6 +33,9 @@ function setFisConfig(iconfont, deploy) {
             svgPath: '../svgs',
             // 字体的产出路径
             output: 'modules/common/fonts',
+            ignoreSrc: [
+            '!/lego_modules/**'
+            ],
             pseClass: 'before' // 伪类名
         }, iconfont || {}),
         deployConf = deploy;
