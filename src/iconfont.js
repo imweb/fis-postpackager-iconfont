@@ -81,7 +81,10 @@ exports.generateCss = function(opt, iconNames, start, step) {
     content.push('url("' + opt._fontCdn.woff + '") format("woff"),'); // chrome、firefox
     content.push('url("' + opt._fontCdn.ttf + '") format("truetype");}'); // chrome、firefox、opera、Safari, Android, iOS 4.2+
 
-    content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}');
+    if(!opt.nonBaseCss) {
+        content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}');
+    }
+
     iconNames.forEach(function(iconName) {
         iconContent = generateIconContent(start++);
         if (typeof iconContent !== 'undefined' && fs.existsSync(path.join(opt._svgPath, iconName + '.svg'))) {
@@ -112,7 +115,10 @@ exports.generateBase64Css = function(opt, iconNames, ttf, start, step) {
     content.push('font-family: "mfont";');
     content.push('src: url("data:application/octet-stream;base64,' + fontBase64 + '") format("truetype");}');
 
-    content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}');
+    if(!opt.nonBaseCss) {
+        content.push('.icon-font{font-family:"mfont";font-size:16px;font-style:normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;position: relative;-webkit-font-smoothing: antialiased;}');
+    }
+
     iconNames.forEach(function(iconName) {
         iconContent = generateIconContent(start++);
         if (typeof iconContent !== 'undefined' && fs.existsSync(path.join(opt._svgPath, iconName + '.svg'))) {
