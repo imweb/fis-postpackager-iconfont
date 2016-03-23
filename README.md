@@ -45,7 +45,8 @@ postpackager: fis.plugin('iconfont', {
     pseClass: 'before', 
     // h5里面可以将ttf文件base64引入
     base64: false,
-    ignoreSrc: [] // glob 表达式，指定哪些文件不需要遍历，在引用组件时，有可能组件本身已经处理了iconfont。
+    ignoreSrc: [], // glob 表达式，指定哪些文件不需要遍历，在引用组件时，有可能组件本身已经处理了iconfont。
+	nonBaseCss: true // 不导入iconfont基础css样式，默认值为false，一般不需要设置
 })
 
 // 最简配置
